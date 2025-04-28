@@ -12,85 +12,14 @@ import styles from '../styles/DashBoardStyles';
 import {useNavigation} from '@react-navigation/native';
 import {getBooks} from '../api/bookRoutes';
 import {searchBookByNameAuthor} from '../api/bookRoutes';
-
-// const DATA = [
-//   {
-//     _id: '67f68a0d85bb57e4530ed112',
-//     ISBN: '9780439139601.0',
-//     name: 'Secrets of the Forgotten Realm',
-//     url: 'https://imagekit.io/tools/asset-public-link?detail=%7B%22name%22%3A%22HarryPotter.jpg%22%2C%22type%22%3A%22image%2Fjpeg%22%2C%22signedurl_expire%22%3A%222028-04-10T07%3A36%3A17.418Z%22%2C%22signedUrl%22%3A%22https%3A%2F%2Fmedia-hosting.imagekit.io%2F3f2f2f70f92541e2%2FHarryPotter.jpg%3FExpires%3D1838964977%26Key-Pair-Id%3DK2ZIVPTIP2VGHC%26Signature%3Dk5yauhl4g5yQPzfq5zGnnm4DFsJ3gU7pWg2ubQn0IiaACVecqwx5Nd2kWaZ6yLIMlX6ZDE4gJXKITPED8hmbTIJmWCnDtuLwF5WVCsw9K2Jc9wbVhM7X9lt2fKKwdJEf~wSrVLXe-ITOBC9MN1~4KiEJeDGVCQjNY8wJE1vmXL-8PSQqt2A35sGH~JLXLVy9VK5VQFruxc3OZqGY6SfDRcva67CQC7XIPOon-fv3YvA660ysPXixKP8drVHcBuIgkw3OyBgDVyu~suXqIbYZTVWM15Z19zUKGIKUOr0nePaeIslvM6e0VlkEfFhTvjPYpFcZFl4FBOOCrMSAMItdhQ__%22%7D',
-//     auther: '67890',
-//     category: 'Fantasy',
-//     price: '24.5',
-//     age_limit: '16',
-//     description:
-//       'A magical journey through an ancient realm where secrets can change the fate of kingdoms.',
-//     condition: true,
-//   },
-//   {
-//     _id: '67f68a0d85bb57e4530ed11',
-//     ISBN: '9780439139601.0',
-//     name: 'Secrets of the Forgotten Realm',
-//     auther: '67890',
-//     category: 'Fantasy',
-//     price: '24.5',
-//     age_limit: '16',
-//     description:
-//       'A magical journey through an ancient realm where secrets can change the fate of kingdoms.',
-//     condition: false,
-//   },
-//   {
-//     _id: '67f68a0d85bb57e4530ed1',
-//     ISBN: '9780439139601.0',
-//     name: 'Secrets of the Forgotten Realm',
-//     auther: '67890',
-//     category: 'Fantasy',
-//     price: '24.5',
-//     age_limit: '16',
-//     description:
-//       'A magical journey through an ancient realm where secrets can change the fate of kingdoms.',
-//     condition: true,
-//   },
-//   {
-//     _id: '67f68a0d85bb57e4530ed1',
-//     ISBN: '9780439139601.0',
-//     name: 'Secrets of the Forgotten Realm',
-//     auther: '67890',
-//     category: 'Fantasy',
-//     price: '24.5',
-//     age_limit: '16',
-//     description:
-//       'A magical journey through an ancient realm where secrets can change the fate of kingdoms.',
-//     condition: false,
-//   },
-//   {
-//     _id: '67f68a0d85bb57e4530ed1',
-//     ISBN: '9780439139601.0',
-//     name: 'Secrets of the Forgotten Realm',
-//     auther: '67890',
-//     category: 'Fantasy',
-//     price: '24.5',
-//     age_limit: '16',
-//     description:
-//       'A magical journey through an ancient realm where secrets can change the fate of kingdoms.',
-//   },
-//   {
-//     _id: '67f68a0d85bb57e4530ed1',
-//     ISBN: '9780439139601.0',
-//     name: 'Secrets of the Forgotten Realm',
-//     auther: '67890',
-//     category: 'Fantasy',
-//     price: '24.5',
-//     age_limit: '16',
-//     description:
-//       'A magical journey through an ancient realm where secrets can change the fate of kingdoms.',
-//   },
-// ];
+import {useDispatch, useSelector} from 'react-redux';
+import { addFavorite, removeFavorite } from '../app/favoritesSlice';
 
 const DashBoardScreen = () => {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [books, setBooks] = useState([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const loadBooks = async () => {
@@ -99,26 +28,21 @@ const DashBoardScreen = () => {
         setBooks(data);
       } catch (error) {
         console.error('Error loading books:', error);
-      } 
+      }
     };
 
     loadBooks();
   }, []);
 
   const filteredBooks = async () => {
-    try{
+    try {
       const data = await searchBookByNameAuthor(searchQuery);
       setBooks(data);
-     
-    }catch (error) {
+    } catch (error) {
       console.error('Error loading books:', error);
     }
-    
+  };
 
-  }
-  
-
-  
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -152,40 +76,47 @@ const DashBoardScreen = () => {
         renderItem={({item}) => (
           <TouchableOpacity
             style={styles.itemContainer}
-            onPress={() => navigation.navigate('BookScreen', {bookId: item._id})}
-          >
+            onPress={() =>
+              navigation.navigate('BookScreen', {bookId: item._id})
+            }>
             <Image source={{uri: item.bookImage}} style={styles.image} />
             <View style={styles.detailsContainer}>
-            
               <Text style={styles.name}>{item.name}</Text>
               <Text style={styles.text}>Author: {item.auther}</Text>
               <Text style={styles.text}>ISBN: {item.ISBN}</Text>
               <Text style={styles.price}>Price: {item.price}</Text>
               <View style={styles.conditionContainer}>
-              <View
-                style={[
-                  styles.conditionContainer,
-                  {
-                    backgroundColor: item.isConditionUsed
-                      ? '#cce5ff'
-                      : '#d4edda',
-                  },
-                ]}>
-                <Text
+                <View
                   style={[
-                    styles.conditionText,
+                    styles.conditionContainer,
                     {
-                      color: item.isConditionUsed ? '#004085' : '#155724',
+                      backgroundColor: item.isConditionUsed
+                        ? '#cce5ff'
+                        : '#d4edda',
                     },
                   ]}>
-                  {item.isConditionUsed ? 'Used' : 'New'}
-                </Text>
+                  <Text
+                    style={[
+                      styles.conditionText,
+                      {
+                        color: item.isConditionUsed ? '#004085' : '#155724',
+                      },
+                    ]}>
+                    {item.isConditionUsed ? 'Used' : 'New'}
+                  </Text>
+                </View>
               </View>
+
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.favoriteButton}
+                  onPress={() => dispatch(addFavorite(item))}>
+                  <Text style={styles.favoriteButtonText}>Add to Favorites ❤️ </Text>
+                </TouchableOpacity>
               </View>
             </View>
           </TouchableOpacity>
         )}
-        
       />
     </View>
   );
