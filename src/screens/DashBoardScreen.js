@@ -19,7 +19,8 @@ const DashBoardScreen = () => {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [books, setBooks] = useState([]);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch(); 
+  const favorites = useSelector((state) => state.favorites.favorites);
 
   useEffect(() => {
     const loadBooks = async () => {
@@ -40,6 +41,17 @@ const DashBoardScreen = () => {
       setBooks(data);
     } catch (error) {
       console.error('Error loading books:', error);
+    }
+  };
+
+  const toggleFavorite = (book) => {
+    const isFavorite = favorites.find(fav => fav._id === book._id);
+
+    if (isFavorite) {
+      dispatch(removeFavorite(book));
+    }
+    else {
+      dispatch(addFavorite(book));
     }
   };
 
@@ -110,8 +122,10 @@ const DashBoardScreen = () => {
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
                   style={styles.favoriteButton}
-                  onPress={() => dispatch(addFavorite(item))}>
-                  <Text style={styles.favoriteButtonText}>Add to Favorites ❤️ </Text>
+                  onPress={() => toggleFavorite(item)}>
+                  <Text style={styles.favoriteButtonText}>
+                    {favorites.find(fav=> fav._id === item._id) ?  '❤️  Remove from favorites': 'Add to Favorites 🤍 '}
+                    </Text>
                 </TouchableOpacity>
               </View>
             </View>
